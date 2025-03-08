@@ -13,6 +13,7 @@ from frappe.model.document import Document
 from frappe.utils import get_formatted_email
 from frappe.utils.user import get_users_with_role
 from tims_incortex.tims_incortex.utils import get_tims_settings
+from frappe.integrations.utils import create_request_log
 
 class TimsInvoice:
     def __init__(self, invoice_name, company):
@@ -34,22 +35,20 @@ class TimsInvoice:
         else:
             endpoint = "sign?invoice"
         
-        url = f"{self.settings['api_url']}/api/{endpoint}"
+        url = f"{self.settings['api_url']}api/{endpoint}"
         headers = {"Content-Type": "application/json"}
         payload = self._prepare_payload()
-        frappe.throw(str(payload))
-        # Log the API request
-        integration_request = frappe.get_doc({
-            "doctype": "Integration Request",
-            "integration_type": "Remote",
-            "status": "Queued",
-            "reference_doctype": "Sales Invoice",
-            "reference_docname": self.invoice.name,
-            "url": url,
-            "data": json.dumps(payload),
-        })
-        integration_request.insert(ignore_permissions=True)
 
+        # Log the API request
+        integration_request = create_request_log(
+            data=payload,
+            is_remote_request=True,
+            service_name="TIMS Incortex",
+            request_headers=headers,
+            url=url,
+            reference_docname=self.invoice.name,
+            reference_doctype="Sales Invoice",
+        )
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             response_data = response.json()
@@ -74,7 +73,6 @@ class TimsInvoice:
             integration_request.save()
             frappe.db.commit()
 
-
     def _prepare_payload(self):
         """Prepare invoice data for TIMS API."""
         return {
@@ -90,7 +88,7 @@ class TimsInvoice:
             "sel_currency": self.invoice.currency,
             "rel_doc_number": self.invoice.name or "",
             "items_list": [
-                f"{i.item_name} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}" 
+                f"{i.item_code} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}" 
                 for i in self.invoice.items
             ]
         }
@@ -105,15 +103,27 @@ class TimsInvoice:
             "custom_tims_description": response_data.get("message", "Invoice signed successfully.")
         })
         # frappe.db.commit()
+        
+    def handle_failure(self, response_data):
+        """Handle failed API response."""
+        frappe.msgprint(f"Failed to sign invoice: {response_data.get('message')}", alert=True)
+        self._log_error(response_data.get("message"))
+
+        frappe.db.set_value("Sales Invoice", self.invoice.name, {
+            "custom_signing_status": "Failed",
+            "custom_tims_description": response_data.get("message")
+        })
+        # frappe.db.commit()
 
 
     def _update_invoice(self, response_data):
         """Update invoice with TIMS API response using set_value."""
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_cu_serial_number", response_data.get("cu_serial_number"))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_invoice_number", response_data.get("etr_invoice_number"))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_verify_url", response_data.get("verify_url"))
+        frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_serial_number", response_data.get("cu_serial_number"))
+        frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_invoice_number", response_data.get("cu_invoice_number"))
+        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_code", response_data.get("verify_url"))
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_signing_status", "Signed")
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_description", response_data.get("message", "Invoice signed successfully."))
+        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_response_description", response_data.get("message", "Invoice signed successfully."))
+        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_image", get_qr_code(response_data.get("verify_url")))
         # frappe.db.commit()
 
 
@@ -193,3 +203,33 @@ def format_time_for_invoice(time: str) -> str:
     """Format time to ensure leading zero for single-digit hours."""
     hour, minute, second = time.split(":")
     return f"{int(hour):02d}:{minute}:{second}"
+
+@frappe.whitelist()
+def get_invoice(invoice, company):
+    settings = get_tims_settings(company)
+    if not settings:
+        frappe.throw("TIMS settings not configured for this company.")
+
+    url = settings.get("api_url") + settings.get("query_endpoint")
+    headers = {
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "invoice_number": invoice,
+        "username": settings.get("username"),
+        "password": settings.get("password")
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response_data = response.json()
+
+        if response_data.get("status") != "00":
+            frappe.log_error(f"TIMS Query Failed: {response_data}", "TIMS Invoice Query")
+            return {"message": "Query failed", "status": response_data.get("status", "99"), "description": response_data.get("description", "Unknown error")}
+
+        return response_data 
+
+    except requests.exceptions.RequestException as e:
+        frappe.log_error(f"Failed to connect: {str(e)}", "TIMS Health Check")
+        return {"message": "Error", "status": "99", "description": f"Failed to connect: {str(e)}"}
