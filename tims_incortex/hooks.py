@@ -43,7 +43,7 @@ app_license = "agpl-3.0"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Sales Invoice" : "public/js/sales_invoice.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -137,17 +137,19 @@ app_license = "agpl-3.0"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Sales Invoice": {
+        "on_submit": "tims_incortex.tims_incortex.api.sales_invoice.on_submit"
+        
+    }}
 
 # Scheduled Tasks
 # ---------------
-
+scheduler_events = {
+    "all": [
+        "tims_incortex.tims_incortex.api.sales_invoice.retry_pending_invoice"
+    ]
+}
 # scheduler_events = {
 # 	"all": [
 # 		"tims_incortex.tasks.all"
