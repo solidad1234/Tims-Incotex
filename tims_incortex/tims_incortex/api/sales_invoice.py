@@ -1,17 +1,12 @@
 import re
 from base64 import b64encode
-from datetime import timedelta
 from io import BytesIO
-from typing import Literal
 
 import qrcode
 import requests
 import json
 import frappe
 from frappe.integrations.utils import create_request_log
-from frappe.model.document import Document
-from frappe.utils import get_formatted_email
-from frappe.utils.user import get_users_with_role
 from tims_incortex.tims_incortex.utils import get_tims_settings
 from frappe.integrations.utils import create_request_log
 
@@ -27,19 +22,12 @@ class TimsInvoice:
             frappe.msgprint("Invoice already signed.", alert=True)
             return
 
-        # Determine the correct endpoint
-        if self.invoice.is_return:
-            endpoint = "sign?credit"  
-        elif self.invoice.is_debit_note:
-            endpoint = "sign?debit" 
-        else:
-            endpoint = "sign?invoice"
+        endpoint = get_endpoint(self.invoice)
         
         url = f"{self.settings['api_url']}api/{endpoint}"
         headers = {"Content-Type": "application/json"}
         payload = self._prepare_payload()
 
-        # Log the API request
         integration_request = create_request_log(
             data=payload,
             is_remote_request=True,
@@ -53,11 +41,7 @@ class TimsInvoice:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             response_data = response.json()
 
-            # Update integration request with response
-            integration_request.status = "Completed" if response.status_code == 200 else "Failed"
-            integration_request.response = json.dumps(response_data)
-            integration_request.save()
-            frappe.db.commit()
+            integration_request.handle_success(json.dumps(response_data)) if response.status_code == 200 else integration_request.handle_failure(response_data)
 
             if response.status_code == 200 and response_data.get("success"):
                 self._update_invoice(response_data)
@@ -67,12 +51,8 @@ class TimsInvoice:
         except requests.exceptions.RequestException as e:
             frappe.msgprint(f"API request failed: {e}", alert=True)
             self._log_error(str(e))
-            
-            integration_request.status = "Failed"
-            integration_request.response = str(e)
-            integration_request.save()
-            frappe.db.commit()
-
+            integration_request.handler_failure(str(e))
+        
     def _prepare_payload(self):
         """Prepare invoice data for TIMS API."""
         return {
@@ -233,3 +213,15 @@ def get_invoice(invoice, company):
     except requests.exceptions.RequestException as e:
         frappe.log_error(f"Failed to connect: {str(e)}", "TIMS Health Check")
         return {"message": "Error", "status": "99", "description": f"Failed to connect: {str(e)}"}
+
+def get_endpoint(invoice):
+    endpoint=""
+    if invoice.is_return:
+        endpoint = "sign?credit"  
+    elif invoice.is_debit_note:
+        endpoint = "sign?debit" 
+    else:
+        endpoint = "sign?invoice"
+        
+    return endpoint
+

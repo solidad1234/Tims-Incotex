@@ -10,11 +10,11 @@ from tims_incortex.tims_incortex.utils import get_tims_settings
 class TimsIncortexSettings(Document):
 	pass
 
-
 @frappe.whitelist()
 def health_check(company):
     """Checks the TIMS API health status"""
-    url = get_tims_settings(company).get("api_url") + "esd/health"
+    settings = get_tims_settings(company)
+    url = settings.get("api_url") + settings.get("health_check_endpoint")
     try:
         response = requests.get(url, timeout=5)
         response_data = response.json()
