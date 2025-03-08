@@ -1,17 +1,23 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:company",
  "creation": "2025-03-08 10:49:22.977283",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "company",
   "company_pin",
-  "enable_auto_signing",
-  "column_break_toml",
   "server_base_url",
-  "query_url",
-  "health_check_url"
+  "column_break_toml",
+  "username",
+  "password",
+  "endpoints_section",
+  "query_endpoint",
+  "column_break_vvhc",
+  "health_check_endpoint",
+  "section_break_aves",
+  "enable_auto_signing"
  ],
  "fields": [
   {
@@ -20,21 +26,8 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1
-  },
-  {
-   "fieldname": "query_url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Query URL",
-   "reqd": 1
-  },
-  {
-   "fieldname": "health_check_url",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Health Check URL",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fetch_from": "company.tax_id",
@@ -58,14 +51,54 @@
    "fieldname": "enable_auto_signing",
    "fieldtype": "Check",
    "label": "Enable Auto-Signing"
+  },
+  {
+   "description": "eg /esd/queryinvoice",
+   "fieldname": "query_endpoint",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Query URL",
+   "reqd": 1
+  },
+  {
+   "description": "/esd/health",
+   "fieldname": "health_check_endpoint",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Health Check URL",
+   "reqd": 1
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "endpoints_section",
+   "fieldtype": "Section Break",
+   "label": "Endpoints"
+  },
+  {
+   "fieldname": "column_break_vvhc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_aves",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-08 10:54:47.962230",
+ "modified": "2025-03-08 16:37:07.502796",
  "modified_by": "Administrator",
  "module": "Tims Incortex",
  "name": "Tims Incortex Settings",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

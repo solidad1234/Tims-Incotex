@@ -1,11 +1,16 @@
 import frappe
 
-def get_tims_settings():
+def get_tims_settings(company):
     """Fetch TIMS Incortex Settings from the doctype."""
-    settings = frappe.get_single("Tims Incortex Settings")
+    settings = frappe.get_doc("Tims Incortex Settings", {"company": company})
+
 
     return {
-        "api_url": settings.api_url,
-        "cu_number": settings.cu_number,
-        "serial_number": settings.serial_number
+        "company": settings.company,
+        "company_pin": settings.company_pin,
+        "api_url": settings.server_base_url,
+        "query_endpoint": settings.query_endpoint,
+        "health_check_endpoint": settings.health_check_endpoint,
+        "password": settings.get_password(fieldname="password", raise_exception=False),
+        "username": settings.username
     }

@@ -12,32 +12,32 @@ from frappe.integrations.utils import create_request_log
 from frappe.model.document import Document
 from frappe.utils import get_formatted_email
 from frappe.utils.user import get_users_with_role
-from tims_incortex.tims_incortex.tims_incortex.utils import get_tims_settings
+from tims_incortex.tims_incortex.utils import get_tims_settings
 
 class TimsInvoice:
-    def __init__(self, invoice_name):
+    def __init__(self, invoice_name, company):
         """Initialize with Sales Invoice document."""
         self.invoice = frappe.get_doc("Sales Invoice", invoice_name)
-        self.settings = get_tims_settings()
+        self.settings = get_tims_settings(company)
 
     def sign_invoice(self):
         """Send invoice data to TIMS API and update response."""
-        if self.invoice.custom_cu_invoice_number:
+        if self.invoice.etr_invoice_number:
             frappe.msgprint("Invoice already signed.", alert=True)
             return
 
         # Determine the correct endpoint
         if self.invoice.is_return:
-            endpoint = "sign?credit"  # Credit Note
-        elif self.invoice.debit_note:
-            endpoint = "sign?debit"  # Debit Note
+            endpoint = "sign?credit"  
+        elif self.invoice.is_debit_note:
+            endpoint = "sign?debit" 
         else:
-            endpoint = "sign?invoice"  # Standard Invoice
+            endpoint = "sign?invoice"
         
-        url = f"{self.settings['api_url']}/{endpoint}"
+        url = f"{self.settings['api_url']}/api/{endpoint}"
         headers = {"Content-Type": "application/json"}
         payload = self._prepare_payload()
-
+        frappe.throw(str(payload))
         # Log the API request
         integration_request = frappe.get_doc({
             "doctype": "Integration Request",
@@ -80,7 +80,7 @@ class TimsInvoice:
         return {
             "invoice_date": self.invoice.posting_date.strftime("%d_%m_%Y"),
             "invoice_number": self.invoice.name,
-            "invoice_pin": self.settings["invoice_pin"],
+            "invoice_pin": self.settings["company_pin"],
             "customer_pin": self.invoice.tax_id or "",
             "customer_exid": self.invoice.customer,
             "grand_total": str(self.invoice.grand_total),
@@ -88,7 +88,7 @@ class TimsInvoice:
             "tax_total": str(self.invoice.total_taxes_and_charges),
             "net_discount_total": str(self.invoice.discount_amount or "0.00"),
             "sel_currency": self.invoice.currency,
-            "rel_doc_number": self.invoice.custom_rel_doc_number or "",
+            "rel_doc_number": self.invoice.name or "",
             "items_list": [
                 f"{i.item_name} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}" 
                 for i in self.invoice.items
@@ -99,7 +99,7 @@ class TimsInvoice:
         """Update invoice with TIMS API response using set_value."""
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
             "custom_cu_serial_number": response_data.get("cu_serial_number"),
-            "custom_cu_invoice_number": response_data.get("cu_invoice_number"),
+            "etr_invoice_number": response_data.get("etr_invoice_number"),
             "custom_verify_url": response_data.get("verify_url"),
             "custom_signing_status": "Signed",
             "custom_tims_description": response_data.get("message", "Invoice signed successfully.")
@@ -110,7 +110,7 @@ class TimsInvoice:
     def _update_invoice(self, response_data):
         """Update invoice with TIMS API response using set_value."""
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_cu_serial_number", response_data.get("cu_serial_number"))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_cu_invoice_number", response_data.get("cu_invoice_number"))
+        frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_invoice_number", response_data.get("etr_invoice_number"))
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_verify_url", response_data.get("verify_url"))
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_signing_status", "Signed")
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_description", response_data.get("message", "Invoice signed successfully."))
@@ -129,9 +129,9 @@ class TimsInvoice:
 
 
 @frappe.whitelist()
-def sign_invoice(invoice_name):
+def sign_single_invoice(invoice_name, company):
     """Public function to trigger invoice signing."""
-    invoice = TimsInvoice(invoice_name)
+    invoice = TimsInvoice(invoice_name, company)
     invoice.sign_invoice()
 
 @frappe.whitelist()
@@ -149,7 +149,7 @@ def retry_pending_invoices():
 
 def on_submit(doc, method):
     """Trigger invoice signing on submission."""
-    invoice = TimsInvoice(doc.name)
+    invoice = TimsInvoice(doc.name, doc.company)
     invoice.sign_invoice()
     
 def get_qr_code(data: str) -> str:
