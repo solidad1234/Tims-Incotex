@@ -9,6 +9,7 @@
   "company",
   "company_pin",
   "server_base_url",
+  "active",
   "column_break_toml",
   "username",
   "password",
@@ -90,11 +91,17 @@
   {
    "fieldname": "section_break_aves",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-08 16:37:07.502796",
+ "modified": "2025-03-10 22:29:12.082458",
  "modified_by": "Administrator",
  "module": "Tims Incortex",
  "name": "Tims Incortex Settings",

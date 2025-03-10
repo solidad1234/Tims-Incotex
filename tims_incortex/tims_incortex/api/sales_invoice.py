@@ -121,8 +121,9 @@ class TimsInvoice:
 @frappe.whitelist()
 def sign_single_invoice(invoice_name, company):
     """Public function to trigger invoice signing."""
-    invoice = TimsInvoice(invoice_name, company)
-    invoice.sign_invoice()
+    if is_active(company):
+        invoice = TimsInvoice(invoice_name, company)
+        invoice.sign_invoice()
 
 @frappe.whitelist()
 def retry_pending_invoices():
@@ -134,13 +135,16 @@ def retry_pending_invoices():
     )
 
     for invoice_name in pending_invoices:
-        invoice = TimsInvoice(invoice_name)
-        invoice.sign_invoice()
+        company = frappe.get_value("Sales Invoice", invoice_name, "company")
+        if is_active(company):
+            invoice = TimsInvoice(invoice_name)
+            invoice.sign_invoice()
 
 def on_submit(doc, method):
     """Trigger invoice signing on submission."""
-    invoice = TimsInvoice(doc.name, doc.company)
-    invoice.sign_invoice()
+    if is_active(doc.company):
+        invoice = TimsInvoice(doc.name, doc.company)
+        invoice.sign_invoice()
     
 def get_qr_code(data: str) -> str:
     """Generate QR Code data
@@ -225,3 +229,6 @@ def get_endpoint(invoice):
         
     return endpoint
 
+def is_active(company):
+    settings = get_tims_settings(company)
+    return settings.get("active")

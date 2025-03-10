@@ -12,5 +12,6 @@ def get_tims_settings(company):
         "query_endpoint": settings.query_endpoint,
         "health_check_endpoint": settings.health_check_endpoint,
         "password": settings.get_password(fieldname="password", raise_exception=False),
-        "username": settings.username
+        "username": settings.username,
+        "active": settings.active,
     }
