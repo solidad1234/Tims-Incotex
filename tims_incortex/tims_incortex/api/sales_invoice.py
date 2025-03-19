@@ -54,6 +54,7 @@ class TimsInvoice:
             integration_request.handler_failure(str(e))
         
     def _prepare_payload(self):
+        hs_code = tax_amount(self.invoice)
         """Prepare invoice data for TIMS API."""
         return {
             "invoice_date": self.invoice.posting_date.strftime("%d_%m_%Y"),
@@ -68,11 +69,12 @@ class TimsInvoice:
             "sel_currency": self.invoice.currency,
             "rel_doc_number": self.invoice.name or "",
             "items_list": [
-                f"{i.item_code} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}" 
+                f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} {i.item_code} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}"
                 for i in self.invoice.items
             ]
         }
 
+    
     def _update_invoice(self, response_data):
         """Update invoice with TIMS API response using set_value."""
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
@@ -83,7 +85,7 @@ class TimsInvoice:
             "custom_tims_description": response_data.get("message", "Invoice signed successfully.")
         })
         # frappe.db.commit()
-        
+
     def handle_failure(self, response_data):
         """Handle failed API response."""
         frappe.msgprint(f"Failed to sign invoice: {response_data.get('message')}", alert=True)
@@ -95,7 +97,6 @@ class TimsInvoice:
         })
         # frappe.db.commit()
 
-
     def _update_invoice(self, response_data):
         """Update invoice with TIMS API response using set_value."""
         frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_serial_number", response_data.get("cu_serial_number"))
@@ -105,7 +106,6 @@ class TimsInvoice:
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_response_description", response_data.get("message", "Invoice signed successfully."))
         frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_image", get_qr_code(response_data.get("verify_url")))
         # frappe.db.commit()
-
 
     def _log_error(self, message):
         """Log API errors."""
@@ -232,3 +232,11 @@ def get_endpoint(invoice):
 def is_active(company):
     settings = get_tims_settings(company)
     return settings.get("active")
+
+def tax_amount(invoice):
+    if not invoice.total_taxes_and_charges:
+        customer = invoice.customer
+        tax_category = frappe.get_value("Customer", customer, "tax_category")
+        hs_code = frappe.get_value("Tax Category", tax_category, "custom_hs_code")
+        return hs_code
+    
