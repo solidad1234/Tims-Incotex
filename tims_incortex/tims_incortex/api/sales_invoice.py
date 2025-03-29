@@ -52,8 +52,10 @@ class TimsInvoice:
             frappe.msgprint(f"API request failed: {e}", alert=True)
             self._log_error(str(e))
             integration_request.handler_failure(str(e))
-        
+   
+
     def _prepare_payload(self):
+        rel_doc_number = self.invoice.custom_relevant_invoice_number if self.invoice.is_return else ""
         hs_code = tax_amount(self.invoice)
         """Prepare invoice data for TIMS API."""
         return {
@@ -61,18 +63,20 @@ class TimsInvoice:
             "invoice_number": self.invoice.name,
             "invoice_pin": self.settings["company_pin"],
             "customer_pin": self.invoice.tax_id or "",
-            "customer_exid": self.invoice.customer,
+            "customer_exid": "",
             "grand_total": str(self.invoice.grand_total),
             "net_subtotal": str(self.invoice.net_total),
             "tax_total": str(self.invoice.total_taxes_and_charges),
             "net_discount_total": str(self.invoice.discount_amount or "0.00"),
             "sel_currency": self.invoice.currency,
-            "rel_doc_number": self.invoice.name or "",
+            "rel_doc_number": rel_doc_number,
             "items_list": [
-                f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} {i.item_code} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}"
+                f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} "
+                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {i.qty:.2f} {i.rate:.2f} {i.amount:.2f}"
                 for i in self.invoice.items
             ]
         }
+
 
     
     def _update_invoice(self, response_data):
@@ -239,4 +243,5 @@ def tax_amount(invoice):
         tax_category = frappe.get_value("Customer", customer, "tax_category")
         hs_code = frappe.get_value("Tax Category", tax_category, "custom_hs_code")
         return hs_code
+    
     
