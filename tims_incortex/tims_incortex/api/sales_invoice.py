@@ -64,15 +64,15 @@ class TimsInvoice:
             "invoice_pin": self.settings["company_pin"],
             "customer_pin": self.invoice.tax_id or "",
             "customer_exid": "",
-            "grand_total": abs(self.invoice.grand_total),
-            "net_subtotal": abs(self.invoice.net_total),
-            "tax_total": abs(self.invoice.total_taxes_and_charges),
-            "net_discount_total": abs(self.invoice.discount_amount or 0.00),
+            "grand_total": abs(self.invoice.base_grand_total),
+            "net_subtotal": abs(self.invoice.base_net_total),
+            "tax_total": abs(self.invoice.base_total_taxes_and_charges),
+            "net_discount_total": abs(self.invoice.base_discount_amount or 0.00),
             "sel_currency": currency_code(self.invoice.currency),
             "rel_doc_number": rel_doc_number,
             "items_list": [
                 f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} "
-                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.rate):.2f} {abs(i.amount):.2f}"
+                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_rate):.2f} {abs(i.base_amount):.2f}"
                 for i in self.invoice.items
             ]
         }
@@ -247,6 +247,7 @@ def tax_amount(invoice):
 def currency_code(currency):
     if currency == "KES":
         return "Ksh"
+    return "Ksh"
     
 def format_invoice_number(invoice_number):
     """Format the invoice number to ensure there is no special charaters"""
