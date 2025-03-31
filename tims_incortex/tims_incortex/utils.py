@@ -19,3 +19,6 @@ def get_tims_settings(company):
         "credit_note_inclusive": settings.credit_note_inclusive,
         "credit_note_exclusive": settings.credit_note_exclusive,
     }
+
+
+    

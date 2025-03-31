@@ -22,9 +22,9 @@ class TimsInvoice:
             frappe.msgprint("Invoice already signed.", alert=True)
             return
 
-        endpoint = get_endpoint(self.invoice)
+        endpoint = get_endpoint(self.invoice, company=self.invoice.company)
         
-        url = f"{self.settings['api_url']}api/{endpoint}"
+        url = f"{self.settings['api_url']}{endpoint}"
         headers = {"Content-Type": "application/json"}
         payload = self._prepare_payload()
 
@@ -57,6 +57,7 @@ class TimsInvoice:
     def _prepare_payload(self):
         rel_doc_number = self.invoice.custom_relevant_invoice_number if self.invoice.is_return else ""
         hs_code = tax_amount(self.invoice)
+        
         """Prepare invoice data for TIMS API."""
         return {
             "invoice_date": self.invoice.posting_date.strftime("%d-%m-%Y"),
@@ -220,15 +221,19 @@ def get_invoice(invoice, company):
         frappe.log_error(f"Failed to connect: {str(e)}", "TIMS Health Check")
         return {"message": "Error", "status": "99", "description": f"Failed to connect: {str(e)}"}
 
-def get_endpoint(invoice):
+def get_endpoint(invoice, company):
+    settings = get_tims_settings(company)
     endpoint=""
-    if invoice.is_return:
-        endpoint = "sign?credit"  
+    if invoice.is_return and inclusive_invoice(invoice):
+        endpoint = settings.get("credit_note_inclusive")
+    elif invoice.is_return and not inclusive_invoice(invoice):
+        endpoint = settings.get("credit_note_exclusive") 
     elif invoice.is_debit_note:
         endpoint = "sign?debit" 
-    else:
-        endpoint = "sign?invoice"
-        
+    elif not invoice.is_return and inclusive_invoice(invoice):
+        endpoint = settings.get("invoice_inclusive")
+    elif not invoice.is_return and not inclusive_invoice(invoice):
+        endpoint = settings.get("invoice_exclusive")
     return endpoint
 
 def is_active(company):
@@ -252,3 +257,17 @@ def currency_code(currency):
 def format_invoice_number(invoice_number):
     """Format the invoice number to ensure there is no special charaters"""
     return re.sub(r"[^a-zA-Z0-9]", "", invoice_number)
+
+
+def inclusive_invoice(invoice):
+    """Determine if the invoice is inclusive or exclusive based on the TIMS settings."""
+    inclusive = True
+    taxes=invoice.taxes[0]
+    if taxes.included_in_print_rate == 1:
+        inclusive = False
+    else:
+        inclusive = True
+    return inclusive
+
+
+

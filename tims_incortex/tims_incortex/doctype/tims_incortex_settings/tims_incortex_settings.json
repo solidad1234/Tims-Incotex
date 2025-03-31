@@ -8,11 +8,9 @@
  "field_order": [
   "company",
   "company_pin",
-  "server_base_url",
   "active",
   "column_break_toml",
-  "username",
-  "password",
+  "server_base_url",
   "api_key",
   "endpoints_section",
   "invoice_inclusive",
@@ -75,16 +73,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "username",
-   "fieldtype": "Data",
-   "label": "Username"
-  },
-  {
-   "fieldname": "password",
-   "fieldtype": "Password",
-   "label": "Password"
-  },
-  {
    "fieldname": "endpoints_section",
    "fieldtype": "Section Break",
    "label": "Endpoints"
@@ -134,12 +122,13 @@
   {
    "fieldname": "api_key",
    "fieldtype": "Password",
-   "label": "API Key"
+   "label": "API Key",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-31 10:56:44.271740",
+ "modified": "2025-03-31 17:13:08.068435",
  "modified_by": "Administrator",
  "module": "Tims Incortex",
  "name": "Tims Incortex Settings",
