@@ -11,7 +11,11 @@ def get_tims_settings(company):
         "api_url": settings.server_base_url,
         "query_endpoint": settings.query_endpoint,
         "health_check_endpoint": settings.health_check_endpoint,
-        "password": settings.get_password(fieldname="password", raise_exception=False),
-        "username": settings.username,
+        "password": settings.get_password(fieldname="api_key", raise_exception=False),
+        "username": settings.get_password(fieldname="api_key", raise_exception=False),
         "active": settings.active,
+        "invoice_inclusive": settings.invoice_inclusive,
+        "invoice_exclusive": settings.invoice_exclusive,
+        "credit_note_inclusive": settings.credit_note_inclusive,
+        "credit_note_exclusive": settings.credit_note_exclusive,
     }

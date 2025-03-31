@@ -13,9 +13,14 @@
   "column_break_toml",
   "username",
   "password",
+  "api_key",
   "endpoints_section",
+  "invoice_inclusive",
+  "invoice_exclusive",
   "query_endpoint",
   "column_break_vvhc",
+  "credit_note_inclusive",
+  "credit_note_exclusive",
   "health_check_endpoint",
   "section_break_aves",
   "enable_auto_signing"
@@ -97,11 +102,44 @@
    "fieldname": "active",
    "fieldtype": "Check",
    "label": "Active"
+  },
+  {
+   "description": "/api/sign?invoice+1\n\n",
+   "fieldname": "invoice_inclusive",
+   "fieldtype": "Data",
+   "label": "Invoice URL Item Price Inclusive",
+   "reqd": 1
+  },
+  {
+   "description": "/api/sign?invoice+2\n",
+   "fieldname": "invoice_exclusive",
+   "fieldtype": "Data",
+   "label": "Invoice URL Item Price Exclusive",
+   "reqd": 1
+  },
+  {
+   "description": "/api/sign?credit-note+1",
+   "fieldname": "credit_note_inclusive",
+   "fieldtype": "Data",
+   "label": "Credit Note URL Item Price Inclusive",
+   "reqd": 1
+  },
+  {
+   "description": "/api/sign?credit-note+2",
+   "fieldname": "credit_note_exclusive",
+   "fieldtype": "Data",
+   "label": "Credit Note URL Item Price Exclusive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-10 22:29:12.082458",
+ "modified": "2025-03-31 10:56:44.271740",
  "modified_by": "Administrator",
  "module": "Tims Incortex",
  "name": "Tims Incortex Settings",
