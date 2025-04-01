@@ -42,11 +42,12 @@ class TimsInvoice:
         )
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
-            response_data = response.json()
+           
+            response_data = response_data.json()
 
-            integration_request.handle_success(json.dumps(response_data)) if response.status_code == 200 else integration_request.handle_failure(response_data)
+            integration_request.handle_success(json.dumps(response_data)) if response_data["description"] == "Signed successfully." else integration_request.handle_failure(response_data)
 
-            if response.status_code == 200:
+            if response_data["description"] == "Signed successfully.":
                 self._update_invoice(response_data)
             else:
                 self.handle_failure(response_data)
@@ -83,7 +84,7 @@ class TimsInvoice:
 
     def _update_invoice(self, response_data):
         """Update invoice with TIMS API response using set_value."""
-        frappe.db.set_value("Sales Invoice", self.invoice.name, {
+        frappe.db.set_value("Sales Invoice", response_data["invoice_number"], {
             "etr_serial_number": response_data.get("cu_serial_number"),
             "etr_invoice_number": response_data.get("cu_invoice_number"),
             "custom_verify_url": response_data.get("verify_url"),
@@ -91,6 +92,7 @@ class TimsInvoice:
             "custom_tims_response_description": response_data.get("message", "Invoice signed successfully."),
             "custom_qr_code": get_qr_code(response_data.get("verify_url")),
             "cu_invoice_date":frappe.utils.today(),
+            "is_filed":1
         })
 
     def handle_failure(self, response_data):
@@ -103,15 +105,15 @@ class TimsInvoice:
         })
         # frappe.db.commit()
 
-    def _update_invoice(self, response_data):
-        """Update invoice with TIMS API response using set_value."""
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_serial_number", response_data.get("cu_serial_number"))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_invoice_number", response_data.get("cu_invoice_number"))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_code", response_data.get("verify_url"))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_signing_status", "Signed")
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_response_description", response_data.get("message", "Invoice signed successfully."))
-        frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_image", get_qr_code(response_data.get("verify_url")))
-        # frappe.db.commit()
+    # def _update_invoice(self, response_data):
+    #     """Update invoice with TIMS API response using set_value."""
+    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_serial_number", response_data.get("cu_serial_number"))
+    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_invoice_number", response_data.get("cu_invoice_number"))
+    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_code", response_data.get("verify_url"))
+    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_signing_status", "Signed")
+    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_response_description", response_data.get("message", "Invoice signed successfully."))
+    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_code", get_qr_code(response_data.get("verify_url")))
+    #     # frappe.db.commit()
 
     def _log_error(self, message):
         """Log API errors."""
