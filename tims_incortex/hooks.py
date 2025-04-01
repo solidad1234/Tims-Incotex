@@ -147,7 +147,7 @@ doc_events = {
 # ---------------
 scheduler_events = {
     "all": [
-        "tims_incortex.tims_incortex.api.sales_invoice.retry_pending_invoice"
+        "tims_incortex.tims_incortex.api.sales_invoice.retry_pending_invoices"
     ]
 }
 # scheduler_events = {
