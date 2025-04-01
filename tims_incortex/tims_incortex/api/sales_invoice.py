@@ -25,7 +25,10 @@ class TimsInvoice:
         endpoint = get_endpoint(self.invoice, company=self.invoice.company)
         
         url = f"{self.settings['api_url']}{endpoint}"
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {self.settings['api_key']}"
+        }
         payload = self._prepare_payload()
 
         integration_request = create_request_log(

@@ -13,6 +13,7 @@ def get_tims_settings(company):
         "health_check_endpoint": settings.health_check_endpoint,
         "password": settings.get_password(fieldname="api_key", raise_exception=False),
         "username": settings.get_password(fieldname="api_key", raise_exception=False),
+        "api_key": settings.get_password(fieldname="api_key", raise_exception=False),
         "active": settings.active,
         "invoice_inclusive": settings.invoice_inclusive,
         "invoice_exclusive": settings.invoice_exclusive,
