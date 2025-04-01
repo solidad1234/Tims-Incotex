@@ -84,17 +84,18 @@ class TimsInvoice:
     def _update_invoice(self, response_data):
         """Update invoice with TIMS API response using set_value."""
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
-            "custom_cu_serial_number": response_data.get("cu_serial_number"),
+            "etr_serial_number": response_data.get("cu_serial_number"),
             "etr_invoice_number": response_data.get("etr_invoice_number"),
             "custom_verify_url": response_data.get("verify_url"),
             "custom_signing_status": "Signed",
-            "custom_tims_description": response_data.get("message", "Invoice signed successfully.")
+            "custom_tims_response_description": response_data.get("message", "Invoice signed successfully."),
+            "custom_qr_code": get_qr_code(response_data.get("verify_url")),
         })
-        # frappe.db.commit()
+        # frappe.db.commit()s
 
     def handle_failure(self, response_data):
         """Handle failed API response."""
-        frappe.msgprint(f"Failed to sign invoice: {response_data.get('message')}", alert=True)
+        frappe.log_error(f"Failed to sign invoice: {response_data.get('message')}", alert=True)
         self._log_error(response_data.get("message"))
 
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
@@ -121,7 +122,6 @@ class TimsInvoice:
             "custom_signing_status": "Failed",
             "custom_tims_description": message
         })
-        # frappe.db.commit()
 
 
 @frappe.whitelist()
@@ -272,6 +272,4 @@ def inclusive_invoice(invoice):
     else:
         inclusive = True
     return inclusive
-
-
 
