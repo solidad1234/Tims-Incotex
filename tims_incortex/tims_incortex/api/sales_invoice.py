@@ -100,7 +100,7 @@ class TimsInvoice:
 
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
             "custom_signing_status": "Failed",
-            "custom_tims_description": response_data.get("message")
+            "custom_tims_response_description": response_data.get("message")
         })
         # frappe.db.commit()
 
@@ -120,7 +120,7 @@ class TimsInvoice:
         
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
             "custom_signing_status": "Failed",
-            "custom_tims_description": message
+            "custom_tims_response_description": message
         })
 
 
