@@ -202,8 +202,9 @@ def get_invoice(invoice, company):
 
     url = settings.get("api_url") + settings.get("query_endpoint")
     headers = {
-        "Content-Type": "application/json",
-    }
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {settings['api_key']}"
+        }
     payload = {
         "invoice_number": invoice,
         "username": settings.get("username"),
