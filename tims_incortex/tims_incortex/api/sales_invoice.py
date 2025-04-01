@@ -68,10 +68,10 @@ class TimsInvoice:
             "invoice_pin": self.settings["company_pin"],
             "customer_pin": self.invoice.tax_id or "",
             "customer_exid": "",
-            "grand_total": abs(self.invoice.base_grand_total),
-            "net_subtotal": abs(self.invoice.base_net_total),
-            "tax_total": abs(self.invoice.base_total_taxes_and_charges),
-            "net_discount_total": abs(self.invoice.base_discount_amount or 0.00),
+            "grand_total": f"{abs(self.invoice.base_grand_total)}",
+            "net_subtotal": f"{abs(self.invoice.base_net_total)}",
+            "tax_total": f"{abs(self.invoice.base_total_taxes_and_charges)}",
+            "net_discount_total": f"{abs(self.invoice.base_discount_amount or 0.00)}",
             "sel_currency": currency_code(self.invoice.currency),
             "rel_doc_number": rel_doc_number,
             "items_list": [
@@ -85,18 +85,16 @@ class TimsInvoice:
         """Update invoice with TIMS API response using set_value."""
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
             "etr_serial_number": response_data.get("cu_serial_number"),
-            "etr_invoice_number": response_data.get("etr_invoice_number"),
+            "etr_invoice_number": response_data.get("cu_invoice_number"),
             "custom_verify_url": response_data.get("verify_url"),
             "custom_signing_status": "Signed",
             "custom_tims_response_description": response_data.get("message", "Invoice signed successfully."),
             "custom_qr_code": get_qr_code(response_data.get("verify_url")),
         })
-        # frappe.db.commit()s
 
     def handle_failure(self, response_data):
         """Handle failed API response."""
         frappe.log_error("Tims error", f"Failed to sign invoice: {response_data.get('message')}")
-
 
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
             "custom_signing_status": "Failed",
@@ -231,7 +229,7 @@ def get_endpoint(invoice, company):
     if invoice.is_return and inclusive_invoice(invoice):
         endpoint = settings.get("credit_note_inclusive")
     elif invoice.is_return and not inclusive_invoice(invoice):
-        endpoint = settings.get("credit_note_exclusive") 
+        endpoint = settings.get("credit_note_inclusive") 
     elif invoice.is_debit_note:
         endpoint = "sign?debit" 
     elif not invoice.is_return and inclusive_invoice(invoice):
