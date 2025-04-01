@@ -76,7 +76,7 @@ class TimsInvoice:
             "rel_doc_number": rel_doc_number,
             "items_list": [
                 f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} "
-                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_rate):.2f} {abs(i.base_amount):.2f}"
+                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_net_rate):.2f} {abs(i.base_net_amount):.2f}"
                 for i in self.invoice.items
             ]
         }
@@ -136,14 +136,14 @@ def retry_pending_invoices():
     """Retry signing invoices that failed."""
     pending_invoices = frappe.get_all(
         "Sales Invoice",
-        filters={"custom_signing_status": "Failed"},
+        filters={"custom_signing_status": ["in", ["Failed", ""]]},
         pluck="name"
     )
 
     for invoice_name in pending_invoices:
         company = frappe.get_value("Sales Invoice", invoice_name, "company")
         if is_active(company):
-            invoice = TimsInvoice(invoice_name)
+            invoice = TimsInvoice(invoice_name, company)
             invoice.sign_invoice()
 
 def on_submit(doc, method):
@@ -237,7 +237,7 @@ def get_endpoint(invoice, company):
     elif not invoice.is_return and inclusive_invoice(invoice):
         endpoint = settings.get("invoice_inclusive")
     elif not invoice.is_return and not inclusive_invoice(invoice):
-        endpoint = settings.get("invoice_exclusive")
+        endpoint = settings.get("invoice_inclusive")
     return endpoint
 
 def is_active(company):
