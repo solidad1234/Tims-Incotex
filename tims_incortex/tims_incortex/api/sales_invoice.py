@@ -43,7 +43,7 @@ class TimsInvoice:
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
            
-            response_data = response_data.json()
+            response_data = response.json()
 
             integration_request.handle_success(json.dumps(response_data)) if response_data["description"] == "Signed successfully." else integration_request.handle_failure(response_data)
 
