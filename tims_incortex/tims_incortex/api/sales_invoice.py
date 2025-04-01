@@ -76,7 +76,7 @@ class TimsInvoice:
             "rel_doc_number": rel_doc_number,
             "items_list": [
                 f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} "
-                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_net_rate):.2f} {abs(i.base_net_amount):.2f}"
+                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_rate):.2f} {abs(i.base_amount):.2f}"
                 for i in self.invoice.items
             ]
         }
