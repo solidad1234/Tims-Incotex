@@ -49,7 +49,7 @@ class TimsInvoice:
             if response.status_code == 200 and response_data.get("success"):
                 self._update_invoice(response_data)
             else:
-                self._handle_failure(response_data)
+                self.handle_failure(response_data)
 
         except requests.exceptions.RequestException as e:
             frappe.msgprint(f"API request failed: {e}", alert=True)
