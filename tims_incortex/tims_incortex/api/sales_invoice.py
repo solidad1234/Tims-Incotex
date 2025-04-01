@@ -95,8 +95,8 @@ class TimsInvoice:
 
     def handle_failure(self, response_data):
         """Handle failed API response."""
-        frappe.log_error(f"Failed to sign invoice: {response_data.get('message')}")
-        self._log_error(response_data.get("message"))
+        frappe.log_error("Tims error", f"Failed to sign invoice: {response_data.get('message')}")
+
 
         frappe.db.set_value("Sales Invoice", self.invoice.name, {
             "custom_signing_status": "Failed",
