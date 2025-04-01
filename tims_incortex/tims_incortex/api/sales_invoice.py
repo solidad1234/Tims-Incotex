@@ -46,7 +46,7 @@ class TimsInvoice:
 
             integration_request.handle_success(json.dumps(response_data)) if response.status_code == 200 else integration_request.handle_failure(response_data)
 
-            if response.status_code == 200 and response_data.get("success"):
+            if response.status_code == 200:
                 self._update_invoice(response_data)
             else:
                 self.handle_failure(response_data)
