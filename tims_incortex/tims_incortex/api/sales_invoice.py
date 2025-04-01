@@ -90,6 +90,7 @@ class TimsInvoice:
             "custom_signing_status": "Signed",
             "custom_tims_response_description": response_data.get("message", "Invoice signed successfully."),
             "custom_qr_code": get_qr_code(response_data.get("verify_url")),
+            "cu_invoice_date":frappe.utils.today(),
         })
 
     def handle_failure(self, response_data):
