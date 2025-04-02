@@ -17,6 +17,7 @@ class TimsInvoice:
         self.settings = get_tims_settings(company)
 
     def sign_invoice(self):
+        # frappe.throw(str(get_qr_code("https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=0040075020000018673")))
         """Send invoice data to TIMS API and update response."""
         if self.invoice.etr_invoice_number:
             frappe.msgprint("Invoice already signed.", alert=True)
@@ -274,3 +275,23 @@ def inclusive_invoice(invoice):
         inclusive = True
     return inclusive
 
+
+def is_valid_kra_pin(pin: str) -> bool:
+    """Checks if the string provided conforms to the pattern of a KRA PIN.
+    This function does not validate if the PIN actually exists, only that
+    it resembles a valid KRA PIN.
+
+    Args:
+        pin (str): The KRA PIN to test
+
+    Returns:
+        bool: True if input is a valid KRA PIN, False otherwise
+    """
+    pattern = r"^[a-zA-Z]{1}[0-9]{9}[a-zA-Z]{1}$"
+    return bool(re.match(pattern, pin))
+
+def before_save(doc, method):
+    """Validate KRA PIN before saving the document."""
+    if doc.customer and doc.tax_id:
+        if not is_valid_kra_pin(doc.tax_id):
+            frappe.throw("Invalid KRA PIN format. Please enter a valid KRA PIN.")

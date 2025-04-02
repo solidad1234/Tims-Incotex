@@ -139,8 +139,8 @@ doctype_js = {"Sales Invoice" : "public/js/sales_invoice.js"}
 
 doc_events = {
     "Sales Invoice": {
-        "on_submit": "tims_incortex.tims_incortex.api.sales_invoice.on_submit"
-        
+        "on_submit": "tims_incortex.tims_incortex.api.sales_invoice.on_submit",
+        "before_save": "tims_incortex.tims_incortex.api.sales_invoice.before_save",
     }}
 
 # Scheduled Tasks
