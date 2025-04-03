@@ -4,7 +4,6 @@ def get_tims_settings(company):
     """Fetch TIMS Incortex Settings from the doctype."""
     settings = frappe.get_doc("Tims Incortex Settings", {"company": company})
 
-
     return {
         "company": settings.company,
         "company_pin": settings.company_pin,

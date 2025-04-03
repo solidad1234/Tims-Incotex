@@ -17,7 +17,6 @@ class TimsInvoice:
         self.settings = get_tims_settings(company)
 
     def sign_invoice(self):
-        # frappe.throw(str(get_qr_code("https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=0040075020000018673")))
         """Send invoice data to TIMS API and update response."""
         if self.invoice.etr_invoice_number:
             frappe.msgprint("Invoice already signed.", alert=True)
@@ -104,17 +103,7 @@ class TimsInvoice:
             "custom_signing_status": "Failed",
             "custom_tims_response_description": response_data.get("message")
         })
-        # frappe.db.commit()
-
-    # def _update_invoice(self, response_data):
-    #     """Update invoice with TIMS API response using set_value."""
-    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_serial_number", response_data.get("cu_serial_number"))
-    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "etr_invoice_number", response_data.get("cu_invoice_number"))
-    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_code", response_data.get("verify_url"))
-    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_signing_status", "Signed")
-    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_tims_response_description", response_data.get("message", "Invoice signed successfully."))
-    #     frappe.db.set_value("Sales Invoice", self.invoice.name, "custom_qr_code", get_qr_code(response_data.get("verify_url")))
-    #     # frappe.db.commit()
+    
 
     def _log_error(self, message):
         """Log API errors."""
@@ -233,13 +222,13 @@ def get_endpoint(invoice, company):
     if invoice.is_return and inclusive_invoice(invoice):
         endpoint = settings.get("credit_note_inclusive")
     elif invoice.is_return and not inclusive_invoice(invoice):
-        endpoint = settings.get("credit_note_inclusive") 
+        endpoint = settings.get("credit_note_exclusive") 
     elif invoice.is_debit_note:
         endpoint = "sign?debit" 
     elif not invoice.is_return and inclusive_invoice(invoice):
         endpoint = settings.get("invoice_inclusive")
     elif not invoice.is_return and not inclusive_invoice(invoice):
-        endpoint = settings.get("invoice_inclusive")
+        endpoint = settings.get("invoice_exclusive")
     return endpoint
 
 def is_active(company):
@@ -267,12 +256,12 @@ def format_invoice_number(invoice_number):
 
 def inclusive_invoice(invoice):
     """Determine if the invoice is inclusive or exclusive based on the TIMS settings."""
-    inclusive = True
+    inclusive = False
     taxes=invoice.taxes[0]
     if taxes.included_in_print_rate == 1:
-        inclusive = False
-    else:
         inclusive = True
+    else:
+        inclusive = False
     return inclusive
 
 
