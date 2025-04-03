@@ -17,6 +17,7 @@ class TimsInvoice:
         self.settings = get_tims_settings(company)
 
     def sign_invoice(self):
+        # frappe.throw(str(get_qr_code("https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=0040075010000004284")))
         """Send invoice data to TIMS API and update response."""
         if self.invoice.etr_invoice_number:
             frappe.msgprint("Invoice already signed.", alert=True)
@@ -77,7 +78,7 @@ class TimsInvoice:
             "rel_doc_number": rel_doc_number,
             "items_list": [
                 f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} "
-                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_rate):.2f} {abs(i.base_amount):.2f}"
+                f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_net_rate):.2f} {abs(i.base_net_amount):.2f}"
                 for i in self.invoice.items
             ]
         }
@@ -127,7 +128,7 @@ def retry_pending_invoices():
     """Retry signing invoices that failed."""
     pending_invoices = frappe.get_all(
         "Sales Invoice",
-        filters={"custom_signing_status": ["in", ["Failed", ""]]},
+        filters={"docstatus":1, "custom_signing_status": ["in", ["Failed", ""]]},
         pluck="name"
     )
 
