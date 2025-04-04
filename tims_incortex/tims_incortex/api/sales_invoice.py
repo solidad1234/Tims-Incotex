@@ -22,6 +22,9 @@ class TimsInvoice:
         if self.invoice.etr_invoice_number:
             frappe.msgprint("Invoice already signed.", alert=True)
             return
+        if self.invoice.is_opening=="Yes":
+            frappe.msgprint("Opening invoices cannot be signed.", alert=True)
+            return
 
         endpoint = get_endpoint(self.invoice, company=self.invoice.company)
         
@@ -128,7 +131,7 @@ def retry_pending_invoices():
     """Retry signing invoices that failed."""
     pending_invoices = frappe.get_all(
         "Sales Invoice",
-        filters={"docstatus":1, "custom_signing_status": ["in", ["Failed", ""]]},
+        filters={"docstatus":1,"is_opening":"No", "custom_signing_status": ["in", ["Failed", ""]]},
         pluck="name"
     )
 
