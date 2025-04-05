@@ -48,19 +48,20 @@ class TimsInvoice:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
            
             response_data = response.json()
+            
+            description = response_data.get("description")
+            integration_request.handle_success(json.dumps(response_data)) if description and description == "Signed successfully." else integration_request.handle_failure(response_data)
 
-            integration_request.handle_success(json.dumps(response_data)) if response_data["description"] == "Signed successfully." else integration_request.handle_failure(response_data)
-
-            if response_data["description"] == "Signed successfully.":
+            if description and description == "Signed successfully.":
                 self._update_invoice(response_data)
             else:
+                frappe.msgprint(f"Failed to sign invoice: {response_data.get('error_status')}")
                 self.handle_failure(response_data)
 
         except requests.exceptions.RequestException as e:
             frappe.msgprint(f"API request failed: {e}", alert=True)
             self._log_error(str(e))
             integration_request.handler_failure(str(e))
-   
 
     def _prepare_payload(self):
         rel_doc_number = self.invoice.custom_relevant_invoice_number if self.invoice.is_return else ""
@@ -288,3 +289,4 @@ def before_save(doc, method):
     if doc.customer and doc.tax_id:
         if not is_valid_kra_pin(doc.tax_id):
             frappe.throw("Invalid KRA PIN format. Please enter a valid KRA PIN.")
+            
