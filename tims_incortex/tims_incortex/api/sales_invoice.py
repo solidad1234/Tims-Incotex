@@ -285,8 +285,22 @@ def is_valid_kra_pin(pin: str) -> bool:
     return bool(re.match(pattern, pin))
 
 def before_save(doc, method):
+    remove_tims(doc)
     """Validate KRA PIN before saving the document."""
     if doc.customer and doc.tax_id:
         if not is_valid_kra_pin(doc.tax_id):
             frappe.throw("Invalid KRA PIN format. Please enter a valid KRA PIN.")
             
+            
+def remove_tims(doc):
+    if doc.is_new():
+        doc.is_filed = None
+        doc.etr_serial_number = None
+        doc.etr_invoice_number = None
+        doc.custom_verify_url = None
+        doc.custom_signing_status = None
+        doc.custom_tims_response_description = None
+        doc.custom_qr_code = None
+        doc.cu_invoice_date = None
+
+        
