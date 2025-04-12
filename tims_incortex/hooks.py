@@ -141,6 +141,7 @@ doc_events = {
     "Sales Invoice": {
         "on_submit": "tims_incortex.tims_incortex.api.sales_invoice.on_submit",
         "before_save": "tims_incortex.tims_incortex.api.sales_invoice.before_save",
+        "before_cancel": "tims_incortex.tims_incortex.api.sales_invoice.prevent_cancel_signed_invoice",
     }}
 
 # Scheduled Tasks

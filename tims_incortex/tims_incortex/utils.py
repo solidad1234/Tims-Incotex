@@ -21,4 +21,3 @@ def get_tims_settings(company):
     }
 
 
-    

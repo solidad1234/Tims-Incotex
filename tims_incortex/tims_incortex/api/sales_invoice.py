@@ -1,7 +1,7 @@
 import re
 from base64 import b64encode
 from io import BytesIO
-
+from frappe import _
 import qrcode
 import requests
 import json
@@ -303,4 +303,10 @@ def remove_tims(doc):
         doc.custom_qr_code = None
         doc.cu_invoice_date = None
 
-        
+def prevent_cancel_signed_invoice(doc, method):
+    if doc.custom_signing_status == "Signed":
+        frappe.throw(
+            _("🚫 Cannot cancel the document as it is already <b>signed</b> ✅ and sent to TIMS 📤.")
+        )
+
+    
