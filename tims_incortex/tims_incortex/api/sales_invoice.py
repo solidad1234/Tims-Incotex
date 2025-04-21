@@ -34,7 +34,6 @@ class TimsInvoice:
             "Authorization": f"Basic {self.settings['api_key']}"
         }
         payload = self._prepare_payload()
-
         integration_request = create_request_log(
             data=payload,
             is_remote_request=True,
@@ -64,7 +63,8 @@ class TimsInvoice:
             integration_request.handler_failure(str(e))
 
     def _prepare_payload(self):
-        rel_doc_number = self.invoice.custom_relevant_invoice_number if self.invoice.is_return else ""
+        # rel_doc_number = self.invoice.custom_relevant_invoice_number if self.invoice.is_return else ""
+        rel_doc_number = get_relevant_invoice_number(self.invoice)
         hs_code = tax_amount(self.invoice)
         
         """Prepare invoice data for TIMS API."""
@@ -309,4 +309,14 @@ def prevent_cancel_signed_invoice(doc, method):
             _("🚫 Cannot cancel the document as it is already <b>signed</b> ✅ and sent to TIMS 📤.")
         )
 
+def get_relevant_invoice_number(doc):
+    """Get the relevant invoice number based on the invoice type."""
+    custom_relevant_invoice_number = ""
+    if doc.is_return:
+        custom_relevant_invoice_number = doc.custom_relevant_invoice_number
+        if not doc.custom_relevant_invoice_number:
+            invoice = frappe.get_doc("Sales Invoice", doc.return_against)
+            custom_relevant_invoice_number = invoice.etr_invoice_number
+            
+    return custom_relevant_invoice_number
     
