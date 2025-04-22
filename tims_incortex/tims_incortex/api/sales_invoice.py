@@ -316,7 +316,7 @@ def get_relevant_invoice_number(doc):
         custom_relevant_invoice_number = doc.custom_relevant_invoice_number
         if not doc.custom_relevant_invoice_number:
             invoice = frappe.get_doc("Sales Invoice", doc.return_against)
-            custom_relevant_invoice_number = invoice.etr_invoice_number
+            custom_relevant_invoice_number = invoice.etr_invoice_number if invoice.etr_invoice_number else ""
             
     return custom_relevant_invoice_number
     
