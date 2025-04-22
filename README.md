@@ -20,6 +20,7 @@ The **Tims Incortex** integration connects ERPNext with the Incortex ETIMS devic
 ----------
 
 ### **Setup Configuration**
+![image](https://github.com/user-attachments/assets/4cb976e6-70b5-4e9d-b77a-ba9d4ebb97ff)
 
 #### **1. Tims Incortex Settings Doctype**
 
@@ -59,6 +60,8 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
 ----------
 
 ### **Tax Category Configuration**
+![Screenshot 2025-04-22 at 09 40 59](https://github.com/user-attachments/assets/3393d93d-c135-46b3-be2c-50f92fd44815)
+
 
 -   Attach a **Tax Category** to each customer.
     
@@ -90,7 +93,8 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
     -   A response is received instantly.
         
     -   Updates are made to the invoice:
-        
+       ![image (1)](https://github.com/user-attachments/assets/a6f2286e-a5ba-4a3e-975c-df0c03fdbff0)
+ 
         -   `System Invoice Number`
             
         -   `CU Invoice Number`
@@ -102,7 +106,8 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
     -   A **QR Code** is created using the Verify URL.
         
 4.  Use a **custom print format** to include the QR code on the printed invoice.
-    
+    ![image (2)](https://github.com/user-attachments/assets/0fc3e577-dd1f-43c6-916a-0a7fbd2f94c1)
+
 
 > 💡 **If submission fails**, ERPNext will show the failure reason, but the invoice will still be submitted locally.
 
@@ -111,7 +116,8 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
 ### **Manual Re-Submission**
 
 -   Use the **ETIMS Action** button labeled **"Submit E-Invoice"** to manually resend the invoice if needed.
-    
+ ![Screenshot 2025-04-22 at 09 55 57](https://github.com/user-attachments/assets/202c9e0c-b10c-42d7-b9b4-c1817eac4523)
+   
 
 ----------
 
@@ -127,7 +133,8 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
 1.  Always create a **Credit Note** against an existing Sales Invoice.
     
     -   The system will automatically fetch the correct `CU Invoice Number` which is then stores in Relevant Invoice Numer field.
-        
+       ![image (3)](https://github.com/user-attachments/assets/2bbca69b-a53a-4d5e-891f-6818ea67b0ef)
+ 
 2.  Upon submission:
     
     -   The credit note is sent to Incortex.
@@ -136,3 +143,5 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
         
 
 > ⚠️ If you're creating a **standalone credit note**, **manually enter** the `CU Invoice Number` from the original Sales Invoice to ensure successful submission.
+NOTE:
+Remember, while creating invoice id, it must not have any special characters, so you will have to define a new naming. If not, then you will create a new field, which will have a new sequence that can be used as invoice number on the Incortex while maintaining customer's normal numbering.(Yet to be done).
