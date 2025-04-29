@@ -1,8 +1,11 @@
 import frappe
 
 def get_tims_settings(company):
-    """Fetch TIMS Incortex Settings from the doctype."""
-    settings = frappe.get_doc("Tims Incortex Settings", {"company": company})
+    """Fetch TIMS Incortex Settings from the doctype. If not found, return None."""
+    try:
+        settings = frappe.get_doc("Tims Incortex Settings", {"company": company})
+    except frappe.DoesNotExistError:
+        return  # Or you could return {} if you prefer an empty dict
 
     return {
         "company": settings.company,
@@ -19,5 +22,6 @@ def get_tims_settings(company):
         "credit_note_inclusive": settings.credit_note_inclusive,
         "credit_note_exclusive": settings.credit_note_exclusive,
     }
+
 
 
