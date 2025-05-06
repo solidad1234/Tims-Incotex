@@ -144,10 +144,12 @@ def retry_pending_invoices():
 
 def on_submit(doc, method):
     """Trigger invoice signing on submission."""
-    if is_active(doc.company):
-        invoice = TimsInvoice(doc.name, doc.company)
-        invoice.sign_invoice()
-    
+    if frappe.db.exists("Tims Incortex Settings", {"company": doc.company}):
+        if is_active(doc.company):
+            invoice = TimsInvoice(doc.name, doc.company)
+            invoice.sign_invoice()
+
+        
 def get_qr_code(data: str) -> str:
     """Generate QR Code data
 
