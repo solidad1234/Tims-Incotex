@@ -93,8 +93,8 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
     -   A response is received instantly.
         
     -   Updates are made to the invoice:
-       ![image (1)](https://github.com/user-attachments/assets/a6f2286e-a5ba-4a3e-975c-df0c03fdbff0)
- 
+ ![image (8)](https://github.com/user-attachments/assets/abb7cbce-d599-40a6-9b12-46d73ed32c69)
+
         -   `System Invoice Number`
             
         -   `CU Invoice Number`
