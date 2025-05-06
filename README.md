@@ -93,6 +93,7 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
     -   A response is received instantly.
         
     -   Updates are made to the invoice:
+
  ![image (8)](https://github.com/user-attachments/assets/abb7cbce-d599-40a6-9b12-46d73ed32c69)
 
         -   `System Invoice Number`
@@ -105,7 +106,7 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
             
     -   A **QR Code** is created using the Verify URL.
         
-4.  Use a **custom print format** to include the QR code on the printed invoice.
+4.  Use a **custom print format** to include the QR code on the printed invoice.(Yet to come up wit standard one).
     ![image (2)](https://github.com/user-attachments/assets/0fc3e577-dd1f-43c6-916a-0a7fbd2f94c1)
 
 
@@ -132,7 +133,7 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
 
 1.  Always create a **Credit Note** against an existing Sales Invoice.
     
-    -   The system will automatically fetch the correct `CU Invoice Number` which is then stores in Relevant Invoice Numer field.
+    -   The system will automatically fetch the correct `CU Invoice Number`, which is then stored in the Relevant Invoice Number field.
        ![image (3)](https://github.com/user-attachments/assets/2bbca69b-a53a-4d5e-891f-6818ea67b0ef)
  
 2.  Upon submission:
@@ -143,5 +144,7 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
         
 
 > ⚠️ If you're creating a **standalone credit note**, **manually enter** the `CU Invoice Number` from the original Sales Invoice to ensure successful submission.
-NOTE:
-Remember, while creating invoice id, it must not have any special characters, so you will have to define a new naming. If not, then you will create a new field, which will have a new sequence that can be used as invoice number on the Incortex while maintaining customer's normal numbering.(Yet to be done).
+> ⚠️
+Remember, when creating an invoice ID, it must not have any special characters, so you will have to define a new name. If not, you will create a new field, which will have a new sequence that can be used as an invoice number on the Incortex while maintaining the customer's normal numbering.(This has yet to be done.)
+
+Feel free to contribute.
