@@ -292,6 +292,7 @@ def before_save(doc, method):
     if doc.customer and doc.tax_id:
         if not is_valid_kra_pin(doc.tax_id):
             frappe.throw("Invalid KRA PIN format. Please enter a valid KRA PIN.")
+    get_hs_code_before_save(doc)
             
             
 def remove_tims(doc):
@@ -322,3 +323,40 @@ def get_relevant_invoice_number(doc):
             
     return custom_relevant_invoice_number
     
+def get_hs_code_before_save(doc):
+    for item in doc.items:
+        hs_code = get_hs_code_item_tax(item.item_code, item.item_tax_template)
+        item.custom_hs_code = hs_code or ""
+        
+
+def get_hs_code_item_tax(item_code, item_tax_template_name=None):
+    """
+    Retrieve HS Code from Item Tax child table by checking:
+    1. If item has Item Tax row matching the provided item_tax_template.
+    2. If not, fallback to any Item Tax for the item.
+    3. If not found, fallback to Item Group's Item Tax row.
+    """
+    hs_code = ""
+
+    if item_tax_template_name:
+        tax_row = frappe.db.get_value(
+            "Item Tax",
+            {"item_tax_template": item_tax_template_name},
+            ["tims_hscode"]
+        )
+        if tax_row:
+            return tax_row
+
+    # Fallback: Get first Item Tax record for item
+    item_tax = frappe.get_all("Item Tax", filters={"parent": item_code}, fields=["tims_hscode"], limit=1)
+    if item_tax and item_tax[0].tims_hscode:
+        return item_tax[0].tims_hscode
+
+    # Fallback: Get item group tax template
+    item_doc = frappe.get_doc("Item", item_code)
+    item_group = item_doc.item_group
+    group_tax = frappe.get_all("Item Tax", filters={"parent": item_group}, fields=["tims_hscode"], limit=1)
+    if group_tax and group_tax[0].tims_hscode:
+        return group_tax[0].tims_hscode
+
+    return hs_code
