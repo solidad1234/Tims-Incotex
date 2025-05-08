@@ -17,7 +17,6 @@ class TimsInvoice:
         self.settings = get_tims_settings(company)
 
     def sign_invoice(self):
-        # frappe.throw(str(get_qr_code("https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=0040075010000004284")))
         """Send invoice data to TIMS API and update response."""
         if self.invoice.etr_invoice_number:
             frappe.msgprint("Invoice already signed.", alert=True)
@@ -43,6 +42,7 @@ class TimsInvoice:
             reference_docname=self.invoice.name,
             reference_doctype="Sales Invoice",
         )
+        frappe.throw(str(payload))
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
            
@@ -65,7 +65,6 @@ class TimsInvoice:
     def _prepare_payload(self):
         # rel_doc_number = self.invoice.custom_relevant_invoice_number if self.invoice.is_return else ""
         rel_doc_number = get_relevant_invoice_number(self.invoice)
-        hs_code = tax_amount(self.invoice)
         
         """Prepare invoice data for TIMS API."""
         return {
@@ -81,7 +80,7 @@ class TimsInvoice:
             "sel_currency": currency_code(self.invoice.currency),
             "rel_doc_number": rel_doc_number,
             "items_list": [
-                f"{hs_code if self.invoice.total_taxes_and_charges == 0 else ''} "
+                f"{i.custom_hs_code} "
                 f"{re.sub(r'[^a-zA-Z0-9]', '', i.item_code)} {abs(i.qty):.2f} {abs(i.base_rate):.3f} {abs(i.base_amount):.3f}"
                 for i in self.invoice.items
             ]
