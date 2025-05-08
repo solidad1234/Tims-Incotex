@@ -10,6 +10,24 @@ app_license = "agpl-3.0"
 
 # required_apps = []
 
+
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                (
+"Sales Invoice Item-custom_hs_code",                   
+                ),
+            ]
+        ],
+    },
+
+]
+
+
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
 # 	{
