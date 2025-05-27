@@ -68,6 +68,8 @@ In the **Item Doctype**:
     
 -   This field allows you to set a unique HS Code per **Item Tax Template**.
 ![image (9)](https://github.com/user-attachments/assets/ee58bcb5-1a63-4176-881c-cd98847933bf)
+
+- if you have many related items, you can opt tpo add teh item tax template and HS code per Item Group, we have similar taxes table there.
   
 When you create a Sales Invoice:
 
