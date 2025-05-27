@@ -1,6 +1,6 @@
-## **Tims Incortex Integration for ERPNext**
+## **TIMs INCOTEXT Integration for ERPNext**
 
-The **Tims Incortex** integration connects ERPNext with the Incortex ETIMS device, allowing seamless electronic tax invoice submissions to the **Kenya Revenue Authority (KRA)**. This integration ensures that every invoice created in ERPNext is sent to Incortex, acknowledged with a response, and then submitted to KRA, all while storing and tracking the status of each invoice.
+The **TIMs INCOTEX** integration connects **ERPNext** with the **INCOTEX TIMs** device, allowing seamless electronic tax invoice submissions to the **Kenya Revenue Authority (KRA)**. This integration ensures that every invoice created in ERPNext is sent to INCOTEX, acknowledged with a response, and then submitted to KRA, all while storing and tracking the status of each invoice.
 
 ----------
 
@@ -8,11 +8,11 @@ The **Tims Incortex** integration connects ERPNext with the Incortex ETIMS devic
 
 1.  **Invoice Creation**: Sales Invoices are created in ERPNext as usual.
     
-2.  **Invoice Submission**: Upon submission, the invoice is automatically sent to the Incortex device via API.
+2.  **Invoice Submission**: Upon submission, the invoice is automatically sent to the INCOTEX device via API.
     
-3.  **Response Handling**: Incortex responds with an ID and other related information.
+3.  **Response Handling**: INCOTEX responds with an ID and other related information.
     
-4.  **KRA Submission**: Incortex sends the data to KRA and logs the KRA response under the same ID returned to ERPNext.
+4.  **KRA Submission**: INCOTEX sends the data to KRA and logs the KRA response under the same ID returned to ERPNext.
     
 5.  **Invoice Update**: ERPNext updates the invoice with CU Invoice Number, marks it as filed, and stores the verification URL for generating a QR code.
     
@@ -22,7 +22,7 @@ The **Tims Incortex** integration connects ERPNext with the Incortex ETIMS devic
 ### **Setup Configuration**
 ![image](https://github.com/user-attachments/assets/4cb976e6-70b5-4e9d-b77a-ba9d4ebb97ff)
 
-#### **1. Tims Incortex Settings Doctype**
+#### **1. TIMs INCOTEX Settings Doctype**
 
 Set this up for each company:
 
@@ -30,7 +30,7 @@ Set this up for each company:
     
 -   **Environment**: Choose between `Production` or `Sandbox`.
     
--   **Base URL** and **API Key**: Provided by Incortex.
+-   **Base URL** and **API Key**: Provided by INCOTEX.
     
 
 #### **2. API Endpoints**
@@ -47,7 +47,7 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
     
 -   **Query URL**: To confirm details of already-submitted invoices.
     
--   **Health Check URL**: To check the availability/status of the Incortex device.
+-   **Health Check URL**: To check the availability/status of the INCOTEX device.
     
 
 #### **3. Other Settings**
@@ -64,7 +64,7 @@ In the **Item Doctype**:
 
 -   Go to the **Taxes** child table.
     
--   You will now find a field called **TIMS HS Code**.
+-   You will now find a field called **TIMs HS Code**.
     
 -   This field allows you to set a unique HS Code per **Item Tax Template**.
 ![image (9)](https://github.com/user-attachments/assets/ee58bcb5-1a63-4176-881c-cd98847933bf)
@@ -85,7 +85,7 @@ When you create a Sales Invoice:
 ![image (10)](https://github.com/user-attachments/assets/0c44f3dc-54da-47f6-a78b-6d22aab8ca9a)
         
 
-This ensures that each item sent to KRA via Incortex has the correct HS Code as required by TIMS.
+This ensures that each item sent to KRA via INCOTEX has the correct HS Code as required by TIMs.
         
 
 ----------
@@ -104,7 +104,7 @@ This ensures that each item sent to KRA via Incortex has the correct HS Code as 
         
 3.  Upon submission:
     
-    -   The invoice is sent to Incortex.
+    -   The invoice is sent to INCOTEX.
         
     -   A response is received instantly.
         
@@ -132,7 +132,7 @@ This ensures that each item sent to KRA via Incortex has the correct HS Code as 
 
 ### **Manual Re-Submission**
 
--   Use the **ETIMS Action** button labeled **"Submit E-Invoice"** to manually resend the invoice if needed.
+-   Use the **ETIMs Action** button labeled **"Submit E-Invoice"** to manually resend the invoice if needed.
  ![Screenshot 2025-04-22 at 09 55 57](https://github.com/user-attachments/assets/202c9e0c-b10c-42d7-b9b4-c1817eac4523)
    
 
@@ -154,13 +154,13 @@ This ensures that each item sent to KRA via Incortex has the correct HS Code as 
  
 2.  Upon submission:
     
-    -   The credit note is sent to Incortex.
+    -   The credit note is sent to INCOTEX.
         
     -   A response is received and recorded, similar to a sales invoice.
         
 
 > ⚠️ If you're creating a **standalone credit note**, **manually enter** the `CU Invoice Number` from the original Sales Invoice to ensure successful submission.
 > ⚠️
-Remember, when creating an invoice ID, it must not have any special characters, so you will have to define a new name. If not, you will create a new field, which will have a new sequence that can be used as an invoice number on the Incortex while maintaining the customer's normal numbering.(This has yet to be done.)
+Remember, when creating an invoice ID, it must not have any special characters, so you will have to define a new name. If not, you will create a new field, which will have a new sequence that can be used as an invoice number on the INCOTEX while maintaining the customer's normal numbering.(This has yet to be done.)
 
 Feel free to contribute.
