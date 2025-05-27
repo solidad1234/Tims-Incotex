@@ -59,17 +59,31 @@ Each invoice type and pricing model uses a different endpoint. Configure the fol
 
 ----------
 
-### **Tax Category Configuration**
-![Screenshot 2025-04-22 at 09 40 59](https://github.com/user-attachments/assets/3393d93d-c135-46b3-be2c-50f92fd44815)
+### **HS Code Configuration**
+In the **Item Doctype**:
 
+-   Go to the **Taxes** child table.
+    
+-   You will now find a field called **TIMS HS Code**.
+    
+-   This field allows you to set a unique HS Code per **Item Tax Template**.
+![image (9)](https://github.com/user-attachments/assets/ee58bcb5-1a63-4176-881c-cd98847933bf)
+  
+When you create a Sales Invoice:
 
--   Attach a **Tax Category** to each customer.
+-   The **HS Code** will now appear **per line item**, under **Sales Invoice Item**. We have a new field hs code which is autofilled.
     
--   If tax is **Exempt** or **Zero Rated**:
+-   This value is auto-filled based on:
     
-    -   Add a **HS Code** (custom field). This is required and sent with item payload.
+    1.  **Item’s Tax Template**
         
-    -   (Optional) **Tax Code** field exists, but is not required currently.
+    2.  If not available, **Item Group’s Tax Template**
+        
+    3.  If still not found, it can be **manually selected**
+![image (10)](https://github.com/user-attachments/assets/0c44f3dc-54da-47f6-a78b-6d22aab8ca9a)
+        
+
+This ensures that each item sent to KRA via Incortex has the correct HS Code as required by TIMS.
         
 
 ----------
