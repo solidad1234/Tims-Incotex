@@ -1,3 +1,25 @@
+"""
+
+This module contains unit tests for the Sales Invoice functionality 
+within the TIMS integration.
+
+Test Coverage:
+- Basic Sales Invoice creation and submission.
+- Initialization and behavior of the `TimsInvoice` class.
+- Signing behavior for invoices, including edge cases:
+    - Invoice already signed
+    - Opening invoices (should not be signed)
+    - Successful signing via API
+- Payload preparation and invoice updates.
+- Utility function validations:
+    - Currency code mapping
+    - Invoice number formatting
+    - KRA PIN validation
+    - QR code generation
+    - Invoice retrieval from TIMS API
+
+
+"""
 import frappe
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import nowdate, today
