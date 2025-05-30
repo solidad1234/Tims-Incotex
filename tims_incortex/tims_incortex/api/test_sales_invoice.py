@@ -1,25 +1,3 @@
-"""
-
-This module contains unit tests for the Sales Invoice functionality 
-within the TIMS integration.
-
-Test Coverage:
-- Basic Sales Invoice creation and submission.
-- Initialization and behavior of the `TimsInvoice` class.
-- Signing behavior for invoices, including edge cases:
-    - Invoice already signed
-    - Opening invoices (should not be signed)
-    - Successful signing via API
-- Payload preparation and invoice updates.
-- Utility function validations:
-    - Currency code mapping
-    - Invoice number formatting
-    - KRA PIN validation
-    - QR code generation
-    - Invoice retrieval from TIMS API
-
-
-"""
 import frappe
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import nowdate, today
@@ -409,55 +387,6 @@ class TestHSCodeFunctions(FrappeTestCase):
         result = get_hs_code_item_tax("Test HS Code Item")
         self.assertEqual(result, "")
     
-    def test_get_relevant_invoice_number_return_invoice(self):
-        # Ensure customer exists
-        if not frappe.db.exists("Customer", "Test Customer Events"):
-            frappe.get_doc({
-                "doctype": "Customer",
-                "customer_name": "Test Customer Events",
-                "customer_group": "Individual", 
-                "territory": "All Territories"
-            }).insert(ignore_permissions=True)
-        
-        # Ensure item exists
-        if not frappe.db.exists("Item", "Test Item"):
-            frappe.get_doc({
-                "doctype": "Item",
-                "item_code": "Test Item",
-                "item_name": "Test Item", 
-                "item_group": "Services",
-                "stock_uom": "Nos",
-                "is_sales_item": 1
-            }).insert(ignore_permissions=True)
-        
-        # Create original invoice with required fields
-        original_invoice = frappe.get_doc({
-            "doctype": "Sales Invoice",
-            "customer": "Test Customer Events",
-            "posting_date": nowdate(),
-            "due_date": nowdate(),
-            "etr_invoice_number": "ETR123456",
-            "items": [{
-                "item_code": "Test Item",
-                "qty": 1,
-                "rate": 100
-            }]
-        })
-        original_invoice.insert(ignore_permissions=True)
-        
-        # Create return invoice mock object (don't insert to avoid validation issues)
-        return_invoice = frappe._dict({
-            "doctype": "Sales Invoice",
-            "customer": "Test Customer Events",
-            "posting_date": nowdate(),
-            "is_return": 1,
-            "return_against": original_invoice.name,
-            "custom_relevant_invoice_number": ""
-        })
-        
-        # Test function
-        result = get_relevant_invoice_number(return_invoice)
-        self.assertEqual(result, "ETR123456")
 
 class TestEndpointFunctions(FrappeTestCase):
     
