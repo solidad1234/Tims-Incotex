@@ -52,7 +52,7 @@ class TimsInvoice:
             integration_request.handle_success(json.dumps(response_data)) if description and description == "Signed successfully." else integration_request.handle_failure(response_data)
 
             if description and description == "Signed successfully.":
-                self._update_invoice(response_data)
+                self._update_invoice(response_data, self.invoice.name)
             else:
                 frappe.msgprint(f"Failed to sign invoice: {response_data.get('error_status')}")
                 self.handle_failure(response_data)
@@ -87,9 +87,9 @@ class TimsInvoice:
             ]
         }
 
-    def _update_invoice(self, response_data):
+    def _update_invoice(self, response_data, invoice_name):
         """Update invoice with TIMS API response using set_value."""
-        frappe.db.set_value("Sales Invoice", response_data["invoice_number"], {
+        frappe.db.set_value("Sales Invoice", invoice_name, {
             "etr_serial_number": response_data.get("cu_serial_number"),
             "etr_invoice_number": response_data.get("cu_invoice_number"),
             "custom_verify_url": response_data.get("verify_url"),
